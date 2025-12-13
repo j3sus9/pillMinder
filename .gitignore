@@ -1,0 +1,35 @@
+
+# Created by Studio Bot
+
+# Default Android
+*.apk
+*.aab
+*.ap_
+*.a_
+*.apks
+*.dex
+*.class
+*.lock
+*.hprof
+*.jar
+*.keystore
+*.jks
+/build
+/captures
+.externalNativeBuild
+.gradle
+local.properties
+/app/google-services.json
+
+# IDE files
+.idea/caches
+.idea/gradle.xml
+.idea/libraries
+.idea/misc.xml
+.idea/modules.xml
+.idea/runConfigurations.xml
+.idea/vcs.xml
+.idea/workspace.xml
+
+# Misc
+.DS_Store
