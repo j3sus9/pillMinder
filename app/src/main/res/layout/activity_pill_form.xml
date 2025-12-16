@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:fitsSystemWindows="true"
+    tools:context=".view.PillFormActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Añadir Nuevo Medicamento"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"/>
+
+    <EditText
+        android:id="@+id/et_nombre_medicamento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nombre del Medicamento (Ej: Ibuprofeno)"
+        android:inputType="textCapSentences"
+        android:minHeight="48dp"
+        android:layout_marginBottom="16dp"
+        tools:ignore="Autofill" />
+
+    <EditText
+        android:id="@+id/et_dosis_cantidad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Dosis (Ej: 1 pastilla, 5 ml)"
+        android:inputType="number"
+        android:minHeight="48dp"
+        android:layout_marginBottom="16dp"
+        tools:ignore="Autofill" />
+
+    <EditText
+        android:id="@+id/et_hora_toma"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Horario (Ej: 08:00, 16:00, 22:00)"
+        android:minHeight="48dp"
+        android:layout_marginBottom="32dp"
+        tools:ignore="Autofill" />
+
+    <Button
+        android:id="@+id/btn_save_pill"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Guardar Medicamento"
+        android:textSize="18sp"
+        android:padding="12dp" />
+
+</LinearLayout>

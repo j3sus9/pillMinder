@@ -1,0 +1,129 @@
+package com.example.pillminder.view;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView; // Para el TextView de registrarse
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.example.pillminder.view.MainActivity; // Tu Activity principal
+import com.example.pillminder.R;
+import com.example.pillminder.viewmodel.AuthViewModel;
+
+public class LoginActivity extends AppCompatActivity {
+
+    private AuthViewModel authViewModel;
+    private EditText etEmail, etPassword;
+    private Button btnLogin, btnRegister;
+    private ProgressBar progressBar;
+    private TextView tvRegisterPrompt; // Para el texto "No tienes cuenta?"
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+
+        // 1. Inicialización de Vistas (Conexión con activity_login.xml)
+        etEmail = findViewById(R.id.et_email);
+        etPassword = findViewById(R.id.et_password);
+        btnLogin = findViewById(R.id.btn_login);
+        btnRegister = findViewById(R.id.btn_register);
+        progressBar = findViewById(R.id.progress_bar);
+        tvRegisterPrompt = findViewById(R.id.tv_register_prompt); // Si lo incluiste en el XML
+
+        // 2. Inicialización del ViewModel (MVVM)
+        // Esto le dice a Android que queremos usar el ViewModel y gestionará su ciclo de vida
+        authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
+
+        // 3. Observadores de LiveData
+        setupObservers();
+
+        // 4. Listeners para la interacción del usuario
+        btnLogin.setOnClickListener(v -> attemptLogin());
+        btnRegister.setOnClickListener(v -> attemptRegister());
+    }
+
+    // ----------------------------------------------------------------------
+    // MÉTODOS DE LÓGICA DE LA VISTA
+    // ----------------------------------------------------------------------
+
+    /**
+     * Configura los observadores del LiveData expuesto por el ViewModel.
+     * Esta es la esencia de MVVM en la View.
+     */
+    private void setupObservers() {
+
+        // Observador principal: Cambios en el estado del usuario (éxito de login/registro)
+        authViewModel.getUserLiveData().observe(this, firebaseUser -> {
+            // Este código se ejecuta si el valor en AuthRepository cambia a un usuario VÁLIDO (no nulo)
+            if (firebaseUser != null) {
+                // Autenticación exitosa. Navegar a la pantalla principal (Home)
+                Toast.makeText(this, "Bienvenido: " + firebaseUser.getEmail(), Toast.LENGTH_SHORT).show();
+
+                // Intent para pasar de LoginActivity a MainActivity
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                // Opcional: Esto borra el historial de Activities y asegura que no se pueda volver al login
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                startActivity(intent);
+                finish();
+            }
+            // Ocultar barra de progreso después de cualquier resultado (éxito o fallo)
+            progressBar.setVisibility(View.GONE);
+        });
+
+        // Observador de errores (ej. contraseña incorrecta, usuario ya registrado, etc.)
+        authViewModel.getErrorLiveData().observe(this, errorMessage -> {
+            // Este código se ejecuta si el valor en AuthRepository cambia a un mensaje de error (no nulo)
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                Toast.makeText(this, "Error: " + errorMessage, Toast.LENGTH_LONG).show();
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    /**
+     * Recoge los datos de los EditText y pide al ViewModel que inicie sesión.
+     */
+    private void attemptLogin() {
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Debe ingresar email y contraseña.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Mostrar barra de progreso
+        progressBar.setVisibility(View.VISIBLE);
+
+        // Llamada al ViewModel (Lógica de negocio encapsulada)
+        authViewModel.login(email, password);
+    }
+
+    /**
+     * Recoge los datos de los EditText y pide al ViewModel que registre.
+     */
+    private void attemptRegister() {
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString();
+
+        // Validación básica (Firebase Auth requiere mínimo 6 caracteres en la contraseña)
+        if (email.isEmpty() || password.isEmpty() || password.length() < 6) {
+            Toast.makeText(this, "El email y la contraseña (mínimo 6 caracteres) son requeridos.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Mostrar barra de progreso
+        progressBar.setVisibility(View.VISIBLE);
+
+        // Llamada al ViewModel (Lógica de negocio encapsulada)
+        authViewModel.register(email, password);
+    }
+}
