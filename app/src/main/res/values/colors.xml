@@ -2,9 +2,32 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Colores principales - Tonos suaves y cálidos -->
+    <color name="primary_blue">#4A90E2</color>
+    <color name="primary_blue_dark">#357ABD</color>
+    <color name="accent_green">#5CB85C</color>
+    <color name="accent_red">#E74C3C</color>
+    <color name="accent_orange">#F39C12</color>
+    
+    <!-- Colores de fondo -->
+    <color name="background_light">#F8F9FA</color>
+    <color name="card_background">#FFFFFF</color>
+    
+    <!-- Colores de texto -->
+    <color name="text_primary">#2C3E50</color>
+    <color name="text_secondary">#7F8C8D</color>
+    <color name="text_light">#BDC3C7</color>
+    
+    <!-- Estados de botones -->
+    <color name="button_active">#5CB85C</color>
+    <color name="button_disabled">#95A5A6</color>
+    <color name="button_taken">#3498DB</color>
+    
+    <!-- Colores legacy (mantener compatibilidad) -->
     <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
+    <color name="purple_500">#4A90E2</color>
+    <color name="purple_700">#357ABD</color>
     <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <color name="teal_700">#5CB85C</color>
 </resources>

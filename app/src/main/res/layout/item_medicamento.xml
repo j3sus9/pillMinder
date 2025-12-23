@@ -5,40 +5,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginTop="6dp"
-    android:layout_marginBottom="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
     android:clickable="true"
     android:focusable="true"
+    app:cardBackgroundColor="@color/card_background"
     android:foreground="?android:attr/selectableItemBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <TextView
             android:id="@+id/tv_nombre_medicamento"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/black"
+            android:textColor="@color/text_primary"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/tv_dosis"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="12dp"
             tools:text="Ibuprofeno 600mg" />
 
         <TextView
             android:id="@+id/tv_dosis"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@color/purple_700"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="1 Pastilla" />
@@ -47,50 +49,57 @@
             android:id="@+id/tv_hora_toma"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@color/black"
-            android:layout_marginTop="4dp"
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@id/tv_nombre_medicamento"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btn_tomar"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="12dp"
             tools:text="Horarios: 08:00, 14:00, 22:00" />
 
         <Button
             android:id="@+id/btn_tomar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tomada"
-            android:textSize="12sp"
-            android:minHeight="0dp"
-            android:padding="8dp"
-            android:backgroundTint="@color/teal_700"
+            android:text="TOMAR"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:minWidth="120dp"
+            android:minHeight="56dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:backgroundTint="@color/button_active"
+            app:cornerRadius="12dp"
+            android:elevation="4dp"
             app:layout_constraintEnd_toStartOf="@id/btn_menu_opciones"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginEnd="4dp"/>
 
         <TextView
             android:id="@+id/tv_stock_disponible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_tomar"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             tools:text="Stock: 25 unidades" />
 
         <ImageButton
             android:id="@+id/btn_menu_opciones"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/outline_arrow_drop_down_24"
+            android:contentDescription="Opciones"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginEnd="8dp" />
+            app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

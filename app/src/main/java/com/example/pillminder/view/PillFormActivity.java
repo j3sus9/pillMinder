@@ -1,6 +1,10 @@
 package com.example.pillminder.view;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -15,13 +19,16 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pillminder.R;
 import com.example.pillminder.model.Medicamento;
+import com.example.pillminder.receiver.AlarmReceiver;
 import com.example.pillminder.viewmodel.PillViewModel;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class PillFormActivity extends AppCompatActivity {
 
@@ -33,13 +40,13 @@ public class PillFormActivity extends AppCompatActivity {
     private String medicamentoId = null;
     private String usuarioIdOriginal = null;
     private boolean editando = false;
+    private Medicamento medAEditarOriginal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pill_form);
 
-        // 1. Configurar barra superior con flecha de volver
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Nuevo Medicamento");
@@ -47,7 +54,6 @@ public class PillFormActivity extends AppCompatActivity {
 
         pillViewModel = new ViewModelProvider(this).get(PillViewModel.class);
 
-        // 2. Inicializar vistas
         etNombre = findViewById(R.id.et_nombre_medicamento);
         etDosis = findViewById(R.id.et_dosis_cantidad);
         etCantidadTotal = findViewById(R.id.et_cantidad_total);
@@ -55,14 +61,12 @@ public class PillFormActivity extends AppCompatActivity {
         btnSave = findViewById(R.id.btn_save_pill);
         spinnerTipoDosis = findViewById(R.id.spinner_tipo_dosis);
 
-        // 3. Configuración inicial
         setupSpinner();
         setupTimePicker();
 
-        // 4. Comprobar si estamos en MODO EDICIÓN
-        Medicamento medAEditar = (Medicamento) getIntent().getSerializableExtra("medicamento_editar");
-        if (medAEditar != null) {
-            configurarModoEdicion(medAEditar);
+        medAEditarOriginal = (Medicamento) getIntent().getSerializableExtra("medicamento_editar");
+        if (medAEditarOriginal != null) {
+            configurarModoEdicion(medAEditarOriginal);
             editando = true;
         }
 
@@ -119,7 +123,6 @@ public class PillFormActivity extends AppCompatActivity {
         medicamentoId = med.getDocumentId();
         usuarioIdOriginal = med.getUsuarioId();
 
-        // Cambiar título de la barra superior
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Editar " + med.getNombre());
         }
@@ -128,13 +131,11 @@ public class PillFormActivity extends AppCompatActivity {
         etDosis.setText(String.valueOf(med.getDosis()));
         etCantidadTotal.setText(String.valueOf(med.getStockTotal()));
 
-        // Cargar horas existentes
         if (med.getHorasToma() != null) {
             listaHoras = new ArrayList<>(med.getHorasToma());
             actualizarTextoHoras();
         }
 
-        // Seleccionar tipo en Spinner
         ArrayAdapter adapter = (ArrayAdapter) spinnerTipoDosis.getAdapter();
         int position = adapter.getPosition(med.getTipoDosis());
         if (position >= 0) spinnerTipoDosis.setSelection(position);
@@ -162,16 +163,24 @@ public class PillFormActivity extends AppCompatActivity {
             medicamento.setTipoDosis(spinnerTipoDosis.getSelectedItem().toString());
             medicamento.setHorasToma(new ArrayList<>(listaHoras));
             medicamento.setStockTotal(cantidadTotal);
-            medicamento.setUsuarioId(usuarioIdOriginal);
 
             if (medicamentoId != null) {
                 // Estamos EDITANDO
+                cancelAlarms(medAEditarOriginal);
                 medicamento.setDocumentId(medicamentoId);
+                medicamento.setUsuarioId(usuarioIdOriginal);
                 pillViewModel.updateMedicamento(medicamento);
+                scheduleAlarms(medicamento);
                 Toast.makeText(this, "Medicamento actualizado con éxito", Toast.LENGTH_SHORT).show();
             } else {
                 // Estamos CREANDO
+                String newId = UUID.randomUUID().toString();
+                medicamento.setDocumentId(newId);
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    medicamento.setUsuarioId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                }
                 pillViewModel.addMedicamento(medicamento);
+                scheduleAlarms(medicamento);
                 Toast.makeText(this, "Medicamento guardado con éxito", Toast.LENGTH_SHORT).show();
             }
 
@@ -179,6 +188,56 @@ public class PillFormActivity extends AppCompatActivity {
 
         } catch (NumberFormatException e) {
             Toast.makeText(this, "La dosis y cantidad deben ser números válidos.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void scheduleAlarms(Medicamento medicamento) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (medicamento.getHorasToma() == null || medicamento.getDocumentId() == null) {
+            return;
+        }
+
+        for (String hora : medicamento.getHorasToma()) {
+            Intent intent = new Intent(this, AlarmReceiver.class);
+            intent.putExtra("medicamento_nombre", medicamento.getNombre());
+            intent.putExtra("medicamento_id", medicamento.getDocumentId());
+
+            int requestCode = (medicamento.getDocumentId() + hora).hashCode();
+
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+            String[] parts = hora.split(":");
+            int hour = Integer.parseInt(parts[0]);
+            int minute = Integer.parseInt(parts[1]);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.MINUTE, minute);
+            calendar.set(Calendar.SECOND, 0);
+
+            if (calendar.before(Calendar.getInstance())) {
+                calendar.add(Calendar.DATE, 1);
+            }
+
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        }
+    }
+
+    private void cancelAlarms(Medicamento medicamento) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (medicamento.getHorasToma() == null || medicamento.getDocumentId() == null) {
+            return;
+        }
+
+        for (String hora : medicamento.getHorasToma()) {
+            Intent intent = new Intent(this, AlarmReceiver.class);
+            int requestCode = (medicamento.getDocumentId() + hora).hashCode();
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
+
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent);
+                pendingIntent.cancel();
+            }
         }
     }
 

@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_light"
     android:fitsSystemWindows="true"
     tools:context=".view.MainActivity">
 
@@ -17,7 +18,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_medicamento"
-        android:paddingTop="8dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="88dp"
         android:clipToPadding="false"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -27,6 +29,10 @@
         android:layout_margin="24dp"
         android:contentDescription="Añadir nuevo medicamento"
         android:src="@drawable/ic_add_pill"
+        app:fabSize="normal"
+        app:tint="@color/white"
+        app:backgroundTint="@color/primary_blue"
+        app:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
