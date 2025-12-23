@@ -66,12 +66,12 @@ public class PillViewModel extends ViewModel {
     public void addMedicamento(Medicamento medicamento) {
         String userId = null;
 
-        // 1. Intentamos obtener el ID de la memoria local del ViewModel
+        // Intentamos obtener el ID de la memoria local del ViewModel
         if (currentUserId.getValue() != null) {
             userId = currentUserId.getValue();
         }
 
-        // 2. Si falla, lo pedimos directamente a Firebase (Red de seguridad)
+        // Si falla, lo pedimos directamente a Firebase (Red de seguridad)
         if (userId == null) {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
@@ -81,12 +81,19 @@ public class PillViewModel extends ViewModel {
             }
         }
 
-        // 3. Guardamos
+        // Guardamos
         if (userId != null) {
             medicamento.setUsuarioId(userId);
             pillRepository.addPill(medicamento);
         } else {
             System.out.println("ERROR CRÍTICO: No se pudo identificar al usuario al intentar guardar.");
+        }
+    }
+
+    public void tomarMedicamento(Medicamento medicamento) {
+        if (medicamento.getStockTotal() > 0) {
+            int nuevoStock = medicamento.getStockTotal() - 1;
+            pillRepository.updateStock(medicamento.getDocumentId(), nuevoStock);
         }
     }
 

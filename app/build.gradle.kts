@@ -11,8 +11,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.pillminder"
-        minSdk = 34
-        targetSdk = 36
+        minSdk = 26
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -49,13 +49,13 @@ dependencies {
     // =====================================
 
     // 1. Dependencia de la Plataforma (BOM)
-    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
 
-    // 2. Dependencia para Firebase AUTHENTICATION (Soluciona los errores)
     implementation("com.google.firebase:firebase-auth")
 
-    // 3. Dependencia para Firestore (Ya deberías tenerla de antes)
     implementation("com.google.firebase:firebase-firestore")
+
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
 
     // 4. Dependencias de AndroidX para LiveData y ViewModel (Importante para MVVM)
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")

@@ -22,6 +22,8 @@ public class AuthRepository {
     public AuthRepository() {
         // Inicialización
         this.firebaseAuth = FirebaseAuth.getInstance();
+        this.firebaseAuth.getFirebaseAuthSettings().setAppVerificationDisabledForTesting(true);
+
         this.userLiveData = new MutableLiveData<>();
         this.errorLiveData = new MutableLiveData<>();
 
@@ -61,17 +63,32 @@ public class AuthRepository {
      * Intenta iniciar sesión con email y contraseña.
      */
     public void login(String email, String password) {
+        Log.d("AUTH_DEBUG", "Intentando login para: " + email);
+        errorLiveData.postValue(null);
+
+        // Creamos un "paracaídas": si en 12 segundos no hay respuesta, avisamos.
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            if (userLiveData.getValue() == null && errorLiveData.getValue() == null) {
+                String msg = "Sin respuesta de Firebase. Revisa el SHA-1 o desactiva reCAPTCHA en la consola.";
+                Log.e("AUTH_DEBUG", msg);
+                errorLiveData.postValue(msg);
+            }
+        }, 12000);
+
         firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Log.d(TAG, "Inicio de sesión exitoso.");
+                        Log.d("AUTH_DEBUG", "¡CONECTADO CON ÉXITO!");
                         userLiveData.postValue(firebaseAuth.getCurrentUser());
-                        errorLiveData.postValue(null);
                     } else {
-                        Log.e(TAG, "Fallo en el inicio de sesión.", task.getException());
-                        errorLiveData.postValue(task.getException().getMessage());
-                        userLiveData.postValue(null);
+                        String errorMsg = (task.getException() != null) ? task.getException().getMessage() : "Fallo desconocido";
+                        Log.e("AUTH_DEBUG", "FIREBASE RESPONDIÓ: " + errorMsg);
+                        errorLiveData.postValue(errorMsg);
                     }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("AUTH_DEBUG", "ERROR DE RED/SEGURIDAD: " + e.getMessage());
+                    errorLiveData.postValue("Fallo de conexión: " + e.getMessage());
                 });
     }
 

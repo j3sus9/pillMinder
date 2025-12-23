@@ -25,14 +25,13 @@ public class PillRepository {
     public MutableLiveData<List<Medicamento>> getPillsForUser(String userId) {
         MutableLiveData<List<Medicamento>> livePills = new MutableLiveData<>();
 
-        // 1. Crear la consulta:
+        // Crear la consulta:
         // - Filtra por el ID del usuario
-        // - Ordena por el nombre del medicamento (opcional, pero útil)
+        // - Ordena por el nombre del medicamento
         Query query = db.collection(COLLECTION_NAME)
-                .whereEqualTo("usuarioId", userId)
-                .orderBy("nombre", Query.Direction.ASCENDING);
+                .whereEqualTo("usuarioId", userId);
 
-        // 2. Escuchar los cambios en tiempo real (Snapshot Listener)
+        // Escuchar los cambios en tiempo real (Snapshot Listener)
         query.addSnapshotListener((value, error) -> {
             if (error != null) {
                 Log.w(TAG, "Error al escuchar cambios en Firestore.", error);
@@ -58,10 +57,6 @@ public class PillRepository {
         return livePills;
     }
 
-    // ----------------------------------------------------
-    // 2. INSERCIÓN DE DATOS (CREATE)
-    // ----------------------------------------------------
-
     /**
      * Guarda un nuevo medicamento en la base de datos.
      */
@@ -73,10 +68,6 @@ public class PillRepository {
                 .addOnFailureListener(e ->
                         Log.e(TAG, "Error al añadir medicamento", e));
     }
-
-    // ----------------------------------------------------
-    // 3. ELIMINACIÓN DE DATOS (DELETE)
-    // ----------------------------------------------------
 
     /**
      * Elimina un medicamento de la base de datos usando su DocumentId.
@@ -95,5 +86,14 @@ public class PillRepository {
                         Log.e(TAG, "Error al eliminar medicamento: " + documentId, e));
     }
 
-    // NOTA: Más adelante, podríamos añadir métodos para updatePill() y recordPillTaken().
+    /**
+     * Actualiza el stock de un medicamento en la base de datos.
+     */
+    public void updateStock(String documentId, int nuevoStock) {
+        db.collection(COLLECTION_NAME)
+                .document(documentId)
+                .update("stockTotal", nuevoStock) // Asegúrate que el campo en Firebase se llame "stockTotal"
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Stock actualizado"))
+                .addOnFailureListener(e -> Log.e(TAG, "Error al actualizar stock", e));
+    }
 }

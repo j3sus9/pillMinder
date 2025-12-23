@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">PillMinder</string>
+    <string-array name="tipos_dosis_array">
+        <item>Pastilla(s)</item>
+        <item>ml</item>
+        <item>Gotas</item>
+        <item>Inhalación</item>
+    </string-array>
 </resources>

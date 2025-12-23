@@ -58,32 +58,21 @@ public class LoginActivity extends AppCompatActivity {
      * Esta es la esencia de MVVM en la View.
      */
     private void setupObservers() {
-
-        // Observador principal: Cambios en el estado del usuario (éxito de login/registro)
         authViewModel.getUserLiveData().observe(this, firebaseUser -> {
-            // Este código se ejecuta si el valor en AuthRepository cambia a un usuario VÁLIDO (no nulo)
             if (firebaseUser != null) {
-                // Autenticación exitosa. Navegar a la pantalla principal (Home)
-                Toast.makeText(this, "Bienvenido: " + firebaseUser.getEmail(), Toast.LENGTH_SHORT).show();
-
-                // Intent para pasar de LoginActivity a MainActivity
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                // Opcional: Esto borra el historial de Activities y asegura que no se pueda volver al login
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
+                // Éxito: vamos a la main
+                progressBar.setVisibility(View.GONE); // <--- Asegúrate de ocultarlo aquí
+                Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
-            // Ocultar barra de progreso después de cualquier resultado (éxito o fallo)
-            progressBar.setVisibility(View.GONE);
         });
 
-        // Observador de errores (ej. contraseña incorrecta, usuario ya registrado, etc.)
         authViewModel.getErrorLiveData().observe(this, errorMessage -> {
-            // Este código se ejecuta si el valor en AuthRepository cambia a un mensaje de error (no nulo)
-            if (errorMessage != null && !errorMessage.isEmpty()) {
-                Toast.makeText(this, "Error: " + errorMessage, Toast.LENGTH_LONG).show();
+            if (errorMessage != null) {
+                // ERROR: Ocultamos el progreso y mostramos por qué falló
                 progressBar.setVisibility(View.GONE);
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
             }
         });
     }

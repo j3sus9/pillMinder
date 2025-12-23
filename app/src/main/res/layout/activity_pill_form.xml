@@ -27,15 +27,26 @@
         android:layout_marginBottom="16dp"
         tools:ignore="Autofill" />
 
-    <EditText
-        android:id="@+id/et_dosis_cantidad"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Dosis (Ej: 1 pastilla, 5 ml)"
-        android:inputType="number"
-        android:minHeight="48dp"
-        android:layout_marginBottom="16dp"
-        tools:ignore="Autofill" />
+        android:orientation="horizontal"
+        android:weightSum="10">
+
+        <EditText
+            android:id="@+id/et_dosis_cantidad"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="6"
+            android:hint="Cantidad"
+            android:inputType="number" />
+
+        <Spinner
+            android:id="@+id/spinner_tipo_dosis"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4" />
+    </LinearLayout>
 
     <EditText
         android:id="@+id/et_hora_toma"
