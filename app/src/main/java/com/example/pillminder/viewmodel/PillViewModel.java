@@ -29,9 +29,6 @@ public class PillViewModel extends ViewModel {
         this.authRepository = new AuthRepository();
         this.medicamentosLiveData = new MediatorLiveData<>();
 
-        // ------------------------------------------------------------------
-        // CORRECCIÓN CLAVE PARA QUE LA LISTA CARGUE AL INICIO
-        // ------------------------------------------------------------------
         // En lugar de esperar al AuthRepository (que puede tener un retraso),
         // preguntamos directamente a la instancia de FirebaseAuth que ya tiene
         // la sesión en memoria caché.
@@ -90,11 +87,16 @@ public class PillViewModel extends ViewModel {
         }
     }
 
-    public void tomarMedicamento(Medicamento medicamento) {
-        if (medicamento.getStockTotal() > 0) {
-            int nuevoStock = medicamento.getStockTotal() - 1;
-            pillRepository.updateStock(medicamento.getDocumentId(), nuevoStock);
-        }
+    public void actualizarStock(String id, int nuevoStock) {
+        pillRepository.updateStock(id, nuevoStock);
+    }
+
+    public void tomarMedicamento(Medicamento medicamento, String tomaId) {
+        pillRepository.tomarMedicamento(medicamento, tomaId);
+    }
+
+    public void updateMedicamento(Medicamento med) {
+        pillRepository.updateMedicamento(med);
     }
 
     public void deleteMedicamento(String documentId) {

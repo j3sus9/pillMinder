@@ -69,6 +69,43 @@ public class PillRepository {
                         Log.e(TAG, "Error al añadir medicamento", e));
     }
 
+    public void tomarMedicamento(Medicamento med, String tomaId) {
+        if (med.getDocumentId() != null) {
+            // Calculamos el nuevo stock
+            int nuevoStock = med.getStockTotal() - med.getDosis();
+
+            // Evitamos que el stock sea negativo por seguridad
+            if (nuevoStock < 0) nuevoStock = 0;
+
+            db.collection("medicamentos").document(med.getDocumentId())
+                    .update(
+                            "stockTotal", nuevoStock,
+                            "ultimaTomaId", tomaId // Aquí guardamos el ID que bloquea el botón
+                    )
+                    .addOnSuccessListener(aVoid -> Log.d("Firebase", "Toma registrada: " + tomaId))
+                    .addOnFailureListener(e -> Log.e("Firebase", "Error al registrar toma", e));
+        }
+    }
+
+    /**
+     * Actualiza un medicamento existente en la base de datos.
+     */
+    public void updateMedicamento(Medicamento med) {
+        if (med.getDocumentId() != null) {
+            db.collection("medicamentos")
+                    .document(med.getDocumentId())
+                    .set(med) // Sobrescribe el documento con los nuevos datos del objeto
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("PillRepository", "Medicamento actualizado correctamente: " + med.getNombre());
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("PillRepository", "Error al actualizar medicamento", e);
+                    });
+        } else {
+            Log.e("PillRepository", "No se puede actualizar: el DocumentId es nulo");
+        }
+    }
+
     /**
      * Elimina un medicamento de la base de datos usando su DocumentId.
      */

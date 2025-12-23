@@ -6,4 +6,7 @@
     <item
         android:id="@+id/action_delete"
         android:title="Borrar" />
+    <item
+        android:id="@+id/action_reponer"
+        android:title="Reponer" />
 </menu>

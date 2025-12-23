@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -16,25 +17,32 @@ import com.example.pillminder.R;
 import com.example.pillminder.model.Medicamento;
 import com.example.pillminder.viewmodel.PillViewModel;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 public class PillFormActivity extends AppCompatActivity {
 
     private PillViewModel pillViewModel;
-    private EditText etNombre, etDosis, etHora;
+    private EditText etNombre, etDosis, etHora, etCantidadTotal;
     private Button btnSave;
     private Spinner spinnerTipoDosis;
+    private List<String> listaHoras = new ArrayList<>();
+    private String medicamentoId = null;
+    private String usuarioIdOriginal = null;
+    private boolean editando = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pill_form);
 
-        // 1. Configurar barra superior
+        // 1. Configurar barra superior con flecha de volver
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Nueva Pastilla");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Nuevo Medicamento");
         }
 
         pillViewModel = new ViewModelProvider(this).get(PillViewModel.class);
@@ -42,18 +50,21 @@ public class PillFormActivity extends AppCompatActivity {
         // 2. Inicializar vistas
         etNombre = findViewById(R.id.et_nombre_medicamento);
         etDosis = findViewById(R.id.et_dosis_cantidad);
+        etCantidadTotal = findViewById(R.id.et_cantidad_total);
         etHora = findViewById(R.id.et_hora_toma);
         btnSave = findViewById(R.id.btn_save_pill);
         spinnerTipoDosis = findViewById(R.id.spinner_tipo_dosis);
 
-        // 3. Configurar el Spinner (ml, pastillas, etc.)
+        // 3. Configuración inicial
         setupSpinner();
-
-        // 4. Configurar el Selector de Hora (Reloj)
         setupTimePicker();
 
-        etHora.setFocusable(false);
-        etHora.setOnClickListener(v -> showTimePickerDialog());
+        // 4. Comprobar si estamos en MODO EDICIÓN
+        Medicamento medAEditar = (Medicamento) getIntent().getSerializableExtra("medicamento_editar");
+        if (medAEditar != null) {
+            configurarModoEdicion(medAEditar);
+            editando = true;
+        }
 
         btnSave.setOnClickListener(v -> savePill());
     }
@@ -66,83 +77,132 @@ public class PillFormActivity extends AppCompatActivity {
     }
 
     private void setupTimePicker() {
-        // Evitamos que salga el teclado al tocar el campo de hora
         etHora.setFocusable(false);
         etHora.setClickable(true);
 
         etHora.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
-            int hora = calendar.get(Calendar.HOUR_OF_DAY);
-            int minuto = calendar.get(Calendar.MINUTE);
+            int horaActual = calendar.get(Calendar.HOUR_OF_DAY);
+            int minutoActual = calendar.get(Calendar.MINUTE);
 
             TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                     (view, hourOfDay, minute) -> {
-                        // Formatear hora a HH:mm (ej. 08:05)
                         String horaFormateada = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
-                        etHora.setText(horaFormateada);
-                    }, hora, minuto, true);
+                        if (!listaHoras.contains(horaFormateada)) {
+                            listaHoras.add(horaFormateada);
+                            Collections.sort(listaHoras);
+                            actualizarTextoHoras();
+                        } else {
+                            Toast.makeText(this, "Esta hora ya ha sido añadida", Toast.LENGTH_SHORT).show();
+                        }
+                    }, horaActual, minutoActual, true);
             timePickerDialog.show();
+        });
+
+        etHora.setOnLongClickListener(v -> {
+            listaHoras.clear();
+            etHora.setText("");
+            Toast.makeText(this, "Horarios reiniciados", Toast.LENGTH_SHORT).show();
+            return true;
         });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
+    private void actualizarTextoHoras() {
+        if (listaHoras.isEmpty()) {
+            etHora.setText("");
+            return;
         }
-        return super.onOptionsItemSelected(item);
+        etHora.setText(String.join(", ", listaHoras));
+    }
+
+    private void configurarModoEdicion(Medicamento med) {
+        medicamentoId = med.getDocumentId();
+        usuarioIdOriginal = med.getUsuarioId();
+
+        // Cambiar título de la barra superior
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Editar " + med.getNombre());
+        }
+
+        etNombre.setText(med.getNombre());
+        etDosis.setText(String.valueOf(med.getDosis()));
+        etCantidadTotal.setText(String.valueOf(med.getStockTotal()));
+
+        // Cargar horas existentes
+        if (med.getHorasToma() != null) {
+            listaHoras = new ArrayList<>(med.getHorasToma());
+            actualizarTextoHoras();
+        }
+
+        // Seleccionar tipo en Spinner
+        ArrayAdapter adapter = (ArrayAdapter) spinnerTipoDosis.getAdapter();
+        int position = adapter.getPosition(med.getTipoDosis());
+        if (position >= 0) spinnerTipoDosis.setSelection(position);
+
+        btnSave.setText("ACTUALIZAR CAMBIOS");
     }
 
     private void savePill() {
         String nombre = etNombre.getText().toString().trim();
         String dosisStr = etDosis.getText().toString().trim();
-        String horaToma = etHora.getText().toString().trim();
-        String tipoDosis = spinnerTipoDosis.getSelectedItem().toString();
+        String cantidadStr = etCantidadTotal.getText().toString().trim();
 
-        if (nombre.isEmpty() || dosisStr.isEmpty() || horaToma.isEmpty()) {
-            Toast.makeText(this, "Por favor, complete todos los campos.", Toast.LENGTH_SHORT).show();
+        if (nombre.isEmpty() || dosisStr.isEmpty() || cantidadStr.isEmpty() || listaHoras.isEmpty()) {
+            Toast.makeText(this, "Por favor, complete todos los campos y añada al menos una hora.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
             int dosisCantidad = Integer.parseInt(dosisStr);
+            int cantidadTotal = Integer.parseInt(cantidadStr);
 
-            // Creamos el objeto. Nota: Asegúrate de que el constructor de Medicamento
-            // acepte estos parámetros o usa los setters.
-            Medicamento nuevoMedicamento = new Medicamento(
-                    nombre,
-                    horaToma,
-                    dosisCantidad,
-                    30, // Stock inicial por defecto
-                    null
-            );
+            Medicamento medicamento = new Medicamento();
+            medicamento.setNombre(nombre);
+            medicamento.setDosis(dosisCantidad);
+            medicamento.setTipoDosis(spinnerTipoDosis.getSelectedItem().toString());
+            medicamento.setHorasToma(new ArrayList<>(listaHoras));
+            medicamento.setStockTotal(cantidadTotal);
+            medicamento.setUsuarioId(usuarioIdOriginal);
 
-            // Asignamos el tipo de dosis (ml / pastillas) seleccionado en el Spinner
-            nuevoMedicamento.setTipoDosis(tipoDosis);
+            if (medicamentoId != null) {
+                // Estamos EDITANDO
+                medicamento.setDocumentId(medicamentoId);
+                pillViewModel.updateMedicamento(medicamento);
+                Toast.makeText(this, "Medicamento actualizado con éxito", Toast.LENGTH_SHORT).show();
+            } else {
+                // Estamos CREANDO
+                pillViewModel.addMedicamento(medicamento);
+                Toast.makeText(this, "Medicamento guardado con éxito", Toast.LENGTH_SHORT).show();
+            }
 
-            pillViewModel.addMedicamento(nuevoMedicamento);
-
-            Toast.makeText(this, nombre + " guardado con éxito.", Toast.LENGTH_SHORT).show();
             finish();
 
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "La dosis debe ser un número válido.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "La dosis y cantidad deben ser números válidos.", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void showTimePickerDialog() {
-        // Obtener la hora actual para mostrarla por defecto
-        java.util.Calendar calendar = java.util.Calendar.getInstance();
-        int hour = calendar.get(java.util.Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(java.util.Calendar.MINUTE);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            if (editando)
+                mostrarDialogoConfirmacion();
+            else
+                finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-        android.app.TimePickerDialog timePickerDialog = new android.app.TimePickerDialog(this,
-                (view, hourOfDay, minuteOfHour) -> {
-                    // Formatear la hora para que siempre tenga dos dígitos (ej: 09:05)
-                    String selectedTime = String.format("%02d:%02d", hourOfDay, minuteOfHour);
-                    etHora.setText(selectedTime);
-                }, hour, minute, true);
-        timePickerDialog.show();
+    private void mostrarDialogoConfirmacion() {
+        new AlertDialog.Builder(this)
+                .setTitle("Salir sin guardar")
+                .setMessage("¿Estás seguro de que quieres salir sin guardar? Perderás cualquier modificación que hayas realizado.")
+                .setPositiveButton("Salir", (dialog, which) -> {
+                    finish();
+                })
+                .setNegativeButton("Cancelar", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 }
