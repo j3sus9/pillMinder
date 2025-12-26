@@ -30,6 +30,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 public class PillFormActivity extends AppCompatActivity {
 
     private PillViewModel pillViewModel;
@@ -60,6 +66,14 @@ public class PillFormActivity extends AppCompatActivity {
         etHora = findViewById(R.id.et_hora_toma);
         btnSave = findViewById(R.id.btn_save_pill);
         spinnerTipoDosis = findViewById(R.id.spinner_tipo_dosis);
+
+        // Verificar permisos de notificación para Android 13+ (Tiramisu)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
 
         setupSpinner();
         setupTimePicker();
@@ -97,16 +111,34 @@ public class PillFormActivity extends AppCompatActivity {
                             Collections.sort(listaHoras);
                             actualizarTextoHoras();
                         } else {
-                            Toast.makeText(this, "Esta hora ya ha sido añadida", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Esta hora ya está en la lista", Toast.LENGTH_SHORT).show();
                         }
-                    }, horaActual, minutoActual, true);
+                    }, horaActual, minutoActual, true); // true = formato 24h
             timePickerDialog.show();
         });
 
         etHora.setOnLongClickListener(v -> {
-            listaHoras.clear();
-            etHora.setText("");
-            Toast.makeText(this, "Horarios reiniciados", Toast.LENGTH_SHORT).show();
+            if (listaHoras.isEmpty()) {
+                return true; // No hacemos nada si está vacía
+            }
+
+            String[] horasArray = listaHoras.toArray(new String[0]);
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Eliminar una toma")
+                    .setItems(horasArray, (dialog, which) -> {
+                        String horaBorrada = listaHoras.get(which);
+                        listaHoras.remove(which);
+                        actualizarTextoHoras();
+                        Toast.makeText(this, "Hora " + horaBorrada + " eliminada", Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .setNeutralButton("Borrar Todo", (dialog, which) -> {
+                        listaHoras.clear();
+                        actualizarTextoHoras();
+                    })
+                    .show();
+
             return true;
         });
     }
@@ -202,24 +234,34 @@ public class PillFormActivity extends AppCompatActivity {
             intent.putExtra("medicamento_nombre", medicamento.getNombre());
             intent.putExtra("medicamento_id", medicamento.getDocumentId());
 
-            int requestCode = (medicamento.getDocumentId() + hora).hashCode();
-
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
             String[] parts = hora.split(":");
             int hour = Integer.parseInt(parts[0]);
             int minute = Integer.parseInt(parts[1]);
+
+            intent.putExtra("hora_original", hour);
+            intent.putExtra("minuto_original", minute);
+            // --------------------------------------------------------------------
+
+            int requestCode = (medicamento.getDocumentId() + hora).hashCode();
+
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.HOUR_OF_DAY, hour);
             calendar.set(Calendar.MINUTE, minute);
             calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
 
+            // Si la hora ya pasó hoy, programar para mañana
             if (calendar.before(Calendar.getInstance())) {
                 calendar.add(Calendar.DATE, 1);
             }
 
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            } else {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            }
         }
     }
 
