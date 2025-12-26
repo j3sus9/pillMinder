@@ -1,9 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PillMinder</string>
-    <string-array name="tipos_dosis_array">
-        <item>Pastillas</item>
+    <string name="new_pill_title">Nuevo Medicamento</string>
+    <string name="edit_pill_title">Editar %1$s</string>
+    <string name="this_hour_is_already_in_the_list">Esta hora ya está en la lista</string>
+    <string name="delete_a_take">Eliminar una toma</string>
+    <string name="hour_deleted">Hora %1$s eliminada</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete_all">Borrar Todo</string>
+    <string name="update_changes">ACTUALIZAR CAMBIOS</string>
+    <string name="save_pill_button">GUARDAR MEDICAMENTO</string>
+    <string name="complete_all_fields">Por favor, complete todos los campos y añada al menos una hora.</string>
+    <string name="pill_updated_successfully">Medicamento actualizado con éxito</string>
+    <string name="pill_saved_successfully">Medicamento guardado con éxito</string>
+    <string name="dose_and_quantity_must_be_valid_numbers">La dosis y cantidad deben ser números válidos.</string>
+    <string name="exit_without_saving">Salir sin guardar</string>
+    <string name="exit_without_saving_confirmation">¿Estás seguro de que quieres salir sin guardar? Perderás cualquier modificación que hayas realizado.</string>
+    <string name="exit">Salir</string>
+    <string name="stock_label">Quedan: </string>
+    <string name="stock_label_singular">Queda: </string>
+    <string name="hours_label">Horas: </string>
+    <string name="status_taken">TOMADA (%1$s)</string>
+    <string name="status_not_time">NO ES LA HORA</string>
+    <string name="status_take">TOMAR (%1$s)</string>
+    <string name="missed_take_title">Toma olvidada</string>
+    <string name="missed_take_message">No marcaste como tomada la dosis de las %1$s. ¿Quieres marcar la toma actual de las %2$s?</string>
+    <string name="missed_take_positive">Sí, marcar actual</string>
+    <string name="notification_title">Hora de tu medicamento</string>
+    <string name="notification_text">Es hora de tomar tu %1$s</string>
+    <string name="notification_channel_name">Canal de PillMinder</string>
+    <string name="notification_channel_description">Canal para los recordatorios de PillMinder</string>
+
+    <!-- PillFormActivity layout strings -->
+    <string name="form_name_hint">Nombre (Ej: Ibuprofeno)</string>
+    <string name="form_dose_hint">Dosis (Ej: 1)</string>
+    <string name="form_stock_hint">Cantidad de la que dispone (Ej: 30)</string>
+    <string name="form_hours_label">Tocar para añadir horas:</string>
+    <string name="form_hours_hint">Ej: 08:00, 20:00</string>
+    <string name="form_delete_hours_hint">Mantén pulsado para borrar horas</string>
+
+    <!-- Main Menu -->
+    <string name="action_logout">Cerrar Sesión</string>
+
+    <!-- MainActivity strings -->
+    <string name="no_stock_for_dose">No queda stock suficiente para esta dosis</string>
+    <string name="confirm_take_title">Confirmar toma</string>
+    <string name="confirm_take_message">¿Has tomado tu dosis de %1$s correspondiente a las %2$s?</string>
+    <string name="confirm_take_yes">SÍ, LA HE TOMADO</string>
+    <string name="confirm_take_no">NO</string>
+    <string name="restock_title">Reponer %1$s</string>
+    <string name="restock_message">¿Cuántas %1$s quieres añadir a la cantidad actual?</string>
+    <string name="restock_hint">Cantidad a añadir</string>
+    <string name="restock_add">Añadir</string>
+    <string name="restock_success">Se han añadido %1$d %2$s</string>
+    <string name="delete_pill_title">Eliminar Medicamento</string>
+    <string name="delete_pill_message">¿Estás seguro de que quieres borrar %1$s?</string>
+    <string name="delete_pill_confirm">Eliminar</string>
+    <string name="pill_deleted">Medicamento eliminado</string>
+
+    <!-- Claves de almacenamiento de tipo dosis (no traducir) -->
+    <string-array name="tipos_dosis_keys" translatable="false">
+        <item>tablets</item>
+        <item>capsules</item>
         <item>ml</item>
-        <item>Gotas</item>
-        <item>Inhalaciones</item>
+        <item>drops</item>
+        <item>pills</item>
+        <item>sachets</item>
+        <item>inhalations</item>
+        <item>units</item>
     </string-array>
+
+    <!-- Plurales para unidades de dosis -->
+    <plurals name="unit_tablets">
+        <item quantity="one">pastilla</item>
+        <item quantity="other">pastillas</item>
+    </plurals>
+    <plurals name="unit_capsules">
+        <item quantity="one">cápsula</item>
+        <item quantity="other">cápsulas</item>
+    </plurals>
+    <plurals name="unit_ml">
+        <item quantity="one">ml</item>
+        <item quantity="other">ml</item>
+    </plurals>
+    <plurals name="unit_drops">
+        <item quantity="one">gota</item>
+        <item quantity="other">gotas</item>
+    </plurals>
+    <plurals name="unit_pills">
+        <item quantity="one">píldora</item>
+        <item quantity="other">píldoras</item>
+    </plurals>
+    <plurals name="unit_sachets">
+        <item quantity="one">sobre</item>
+        <item quantity="other">sobres</item>
+    </plurals>
+    <plurals name="unit_inhalations">
+        <item quantity="one">inhalación</item>
+        <item quantity="other">inhalaciones</item>
+    </plurals>
+    <plurals name="unit_units">
+        <item quantity="one">unidad</item>
+        <item quantity="other">unidades</item>
+    </plurals>
 </resources>

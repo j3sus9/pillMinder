@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tipos_dosis_array">
+        <item>tablet(s)</item>
+        <item>capsule(s)</item>
+        <item>ml</item>
+        <item>drop(s)</item>
+        <item>pill(s)</item>
+        <item>sachet(s)</item>
+        <item>inhalation(s)</item>
+        <item>unit(s)</item>
+    </string-array>
+</resources>

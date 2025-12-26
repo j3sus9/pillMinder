@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -24,6 +26,7 @@ import com.example.pillminder.viewmodel.PillViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +58,7 @@ public class PillFormActivity extends AppCompatActivity {
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Nuevo Medicamento");
+            getSupportActionBar().setTitle(getString(R.string.new_pill_title));
         }
 
         pillViewModel = new ViewModelProvider(this).get(PillViewModel.class);
@@ -67,7 +70,6 @@ public class PillFormActivity extends AppCompatActivity {
         btnSave = findViewById(R.id.btn_save_pill);
         spinnerTipoDosis = findViewById(R.id.spinner_tipo_dosis);
 
-        // Verificar permisos de notificación para Android 13+ (Tiramisu)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
                     PackageManager.PERMISSION_GRANTED) {
@@ -111,29 +113,29 @@ public class PillFormActivity extends AppCompatActivity {
                             Collections.sort(listaHoras);
                             actualizarTextoHoras();
                         } else {
-                            Toast.makeText(this, "Esta hora ya está en la lista", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, getString(R.string.this_hour_is_already_in_the_list), Toast.LENGTH_SHORT).show();
                         }
-                    }, horaActual, minutoActual, true); // true = formato 24h
+                    }, horaActual, minutoActual, true);
             timePickerDialog.show();
         });
 
         etHora.setOnLongClickListener(v -> {
             if (listaHoras.isEmpty()) {
-                return true; // No hacemos nada si está vacía
+                return true;
             }
 
             String[] horasArray = listaHoras.toArray(new String[0]);
 
             new AlertDialog.Builder(this)
-                    .setTitle("Eliminar una toma")
+                    .setTitle(getString(R.string.delete_a_take))
                     .setItems(horasArray, (dialog, which) -> {
                         String horaBorrada = listaHoras.get(which);
                         listaHoras.remove(which);
                         actualizarTextoHoras();
-                        Toast.makeText(this, "Hora " + horaBorrada + " eliminada", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.hour_deleted, horaBorrada), Toast.LENGTH_SHORT).show();
                     })
-                    .setNegativeButton("Cancelar", null)
-                    .setNeutralButton("Borrar Todo", (dialog, which) -> {
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .setNeutralButton(getString(R.string.delete_all), (dialog, which) -> {
                         listaHoras.clear();
                         actualizarTextoHoras();
                     })
@@ -156,7 +158,7 @@ public class PillFormActivity extends AppCompatActivity {
         usuarioIdOriginal = med.getUsuarioId();
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Editar " + med.getNombre());
+            getSupportActionBar().setTitle(getString(R.string.edit_pill_title, med.getNombre()));
         }
 
         etNombre.setText(med.getNombre());
@@ -168,11 +170,14 @@ public class PillFormActivity extends AppCompatActivity {
             actualizarTextoHoras();
         }
 
-        ArrayAdapter adapter = (ArrayAdapter) spinnerTipoDosis.getAdapter();
-        int position = adapter.getPosition(med.getTipoDosis());
-        if (position >= 0) spinnerTipoDosis.setSelection(position);
+        // Set spinner selection based on stored key
+        String[] doseTypeKeys = getResources().getStringArray(R.array.tipos_dosis_keys);
+        int position = Arrays.asList(doseTypeKeys).indexOf(med.getTipoDosis());
+        if (position >= 0) {
+            spinnerTipoDosis.setSelection(position);
+        }
 
-        btnSave.setText("ACTUALIZAR CAMBIOS");
+        btnSave.setText(getString(R.string.update_changes));
     }
 
     private void savePill() {
@@ -181,7 +186,7 @@ public class PillFormActivity extends AppCompatActivity {
         String cantidadStr = etCantidadTotal.getText().toString().trim();
 
         if (nombre.isEmpty() || dosisStr.isEmpty() || cantidadStr.isEmpty() || listaHoras.isEmpty()) {
-            Toast.makeText(this, "Por favor, complete todos los campos y añada al menos una hora.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.complete_all_fields), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -192,20 +197,21 @@ public class PillFormActivity extends AppCompatActivity {
             Medicamento medicamento = new Medicamento();
             medicamento.setNombre(nombre);
             medicamento.setDosis(dosisCantidad);
-            medicamento.setTipoDosis(spinnerTipoDosis.getSelectedItem().toString());
+
+            String[] doseTypeKeys = getResources().getStringArray(R.array.tipos_dosis_keys);
+            medicamento.setTipoDosis(doseTypeKeys[spinnerTipoDosis.getSelectedItemPosition()]);
+
             medicamento.setHorasToma(new ArrayList<>(listaHoras));
             medicamento.setStockTotal(cantidadTotal);
 
             if (medicamentoId != null) {
-                // Estamos EDITANDO
                 cancelAlarms(medAEditarOriginal);
                 medicamento.setDocumentId(medicamentoId);
                 medicamento.setUsuarioId(usuarioIdOriginal);
                 pillViewModel.updateMedicamento(medicamento);
                 scheduleAlarms(medicamento);
-                Toast.makeText(this, "Medicamento actualizado con éxito", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.pill_updated_successfully), Toast.LENGTH_SHORT).show();
             } else {
-                // Estamos CREANDO
                 String newId = UUID.randomUUID().toString();
                 medicamento.setDocumentId(newId);
                 if (FirebaseAuth.getInstance().getCurrentUser() != null) {
@@ -213,13 +219,13 @@ public class PillFormActivity extends AppCompatActivity {
                 }
                 pillViewModel.addMedicamento(medicamento);
                 scheduleAlarms(medicamento);
-                Toast.makeText(this, "Medicamento guardado con éxito", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.pill_saved_successfully), Toast.LENGTH_SHORT).show();
             }
 
             finish();
 
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "La dosis y cantidad deben ser números válidos.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.dose_and_quantity_must_be_valid_numbers), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -240,7 +246,6 @@ public class PillFormActivity extends AppCompatActivity {
 
             intent.putExtra("hora_original", hour);
             intent.putExtra("minuto_original", minute);
-            // --------------------------------------------------------------------
 
             int requestCode = (medicamento.getDocumentId() + hora).hashCode();
 
@@ -252,7 +257,6 @@ public class PillFormActivity extends AppCompatActivity {
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
 
-            // Si la hora ya pasó hoy, programar para mañana
             if (calendar.before(Calendar.getInstance())) {
                 calendar.add(Calendar.DATE, 1);
             }
@@ -297,12 +301,12 @@ public class PillFormActivity extends AppCompatActivity {
 
     private void mostrarDialogoConfirmacion() {
         new AlertDialog.Builder(this)
-                .setTitle("Salir sin guardar")
-                .setMessage("¿Estás seguro de que quieres salir sin guardar? Perderás cualquier modificación que hayas realizado.")
-                .setPositiveButton("Salir", (dialog, which) -> {
+                .setTitle(getString(R.string.exit_without_saving))
+                .setMessage(getString(R.string.exit_without_saving_confirmation))
+                .setPositiveButton(getString(R.string.exit), (dialog, which) -> {
                     finish();
                 })
-                .setNegativeButton("Cancelar", null)
+                .setNegativeButton(getString(R.string.cancel), null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }

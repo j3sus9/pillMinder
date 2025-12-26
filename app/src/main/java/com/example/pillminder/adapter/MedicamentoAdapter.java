@@ -1,5 +1,6 @@
 package com.example.pillminder.adapter;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,9 +73,11 @@ public class MedicamentoAdapter extends ListAdapter<Medicamento, MedicamentoAdap
         TextView tvNombre, tvDosis, tvStock, tvHora;
         Button btnTomar;
         ImageButton btnMenuOptions;
+        Context context;
 
         public MedicamentoViewHolder(@NonNull View itemView) {
             super(itemView);
+            context = itemView.getContext();
             tvNombre = itemView.findViewById(R.id.tv_nombre_medicamento);
             tvDosis = itemView.findViewById(R.id.tv_dosis);
             tvStock = itemView.findViewById(R.id.tv_stock_disponible);
@@ -86,9 +89,9 @@ public class MedicamentoAdapter extends ListAdapter<Medicamento, MedicamentoAdap
         public void bind(Medicamento med, OnMedicamentoClickListener listener) {
             tvNombre.setText(med.getNombre());
 
-            String unidadDosis = FormatUtils.obtenerUnidadFormateada(med.getDosis(), med.getTipoDosis());
-            String unidadStock = FormatUtils.obtenerUnidadFormateada(med.getStockTotal(), med.getTipoDosis());
-            String quedan = med.getStockTotal() == 1 ? "Queda: " : "Quedan: ";
+            String unidadDosis = FormatUtils.obtenerUnidadFormateada(context, med.getDosis(), med.getTipoDosis());
+            String unidadStock = FormatUtils.obtenerUnidadFormateada(context, med.getStockTotal(), med.getTipoDosis());
+            String quedan = med.getStockTotal() == 1 ? context.getString(R.string.stock_label_singular) : context.getString(R.string.stock_label);
 
             tvDosis.setText(med.getDosis() + " " + unidadDosis);
             tvStock.setText(quedan + med.getStockTotal() + " " + unidadStock);
@@ -97,17 +100,16 @@ public class MedicamentoAdapter extends ListAdapter<Medicamento, MedicamentoAdap
             String horasTexto = "";
             if (med.getHorasToma() != null && !med.getHorasToma().isEmpty()) {
                 horasTexto = String.join(", ", med.getHorasToma());
-                tvHora.setText("Horas: " + horasTexto);
+                tvHora.setText(context.getString(R.string.hours_label) + horasTexto);
             }
 
             // Lógica de alerta de stock (Rojo si quedan 2 dosis o menos)
             if (med.getStockTotal() <= 2 * med.getDosis()) {
-                tvStock.setTextColor(itemView.getContext().getResources().getColor(android.R.color.holo_red_dark));
+                tvStock.setTextColor(context.getResources().getColor(android.R.color.holo_red_dark));
             } else {
-                tvStock.setTextColor(itemView.getContext().getResources().getColor(android.R.color.tab_indicator_text));
+                tvStock.setTextColor(context.getResources().getColor(android.R.color.tab_indicator_text));
             }
 
-            // --- LÓGICA DE BLOQUEO "TOMADA" ---
             String fechaHoy = new java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.getDefault()).format(new java.util.Date());
 
             // Buscamos si estamos en la ventana de tiempo de alguna toma (hora exacta + 1 hora)
@@ -123,16 +125,15 @@ public class MedicamentoAdapter extends ListAdapter<Medicamento, MedicamentoAdap
             
             if (horaObjetivo == null) {
                 // No estamos en ninguna ventana de tiempo de toma
-                // Verificamos si hay una toma registrada hoy para mostrar "TOMADA"
                 if (horaUltimaTomada != null) {
-                    btnTomar.setText("TOMADA (" + horaUltimaTomada + ")");
+                    btnTomar.setText(context.getString(R.string.status_taken, horaUltimaTomada));
                     btnTomar.setEnabled(false);
                     btnTomar.setAlpha(0.5f);
                     btnTomar.setTextColor(Color.BLACK);
                     btnTomar.setBackgroundColor(Color.GRAY);
                     btnTomar.setOnClickListener(null);
                 } else {
-                    btnTomar.setText("NO ES LA HORA");
+                    btnTomar.setText(context.getString(R.string.status_not_time));
                     btnTomar.setEnabled(false);
                     btnTomar.setAlpha(0.5f);
                     btnTomar.setTextColor(Color.BLACK);
@@ -147,17 +148,17 @@ public class MedicamentoAdapter extends ListAdapter<Medicamento, MedicamentoAdap
                 boolean yaTomada = med.getUltimaTomaId() != null && med.getUltimaTomaId().equals(tomaIdHoy);
 
                 if (yaTomada) {
-                    btnTomar.setText("TOMADA (" + horaObjetivo + ")");
+                    btnTomar.setText(context.getString(R.string.status_taken, horaObjetivo));
                     btnTomar.setEnabled(false);
                     btnTomar.setAlpha(0.5f);
                     btnTomar.setTextColor(Color.BLACK);
                     btnTomar.setBackgroundColor(Color.GRAY);
                     btnTomar.setOnClickListener(null);
                 } else {
-                    btnTomar.setText("TOMAR (" + horaObjetivo + ")");
+                    btnTomar.setText(context.getString(R.string.status_take, horaObjetivo));
                     btnTomar.setEnabled(true);
                     btnTomar.setAlpha(1.0f);
-                    btnTomar.setBackgroundColor(itemView.getContext().getResources().getColor(R.color.purple_500));
+                    btnTomar.setBackgroundColor(context.getResources().getColor(R.color.purple_500));
                     
                     // Clic en botón Tomar
                     btnTomar.setOnClickListener(v -> {
@@ -165,12 +166,12 @@ public class MedicamentoAdapter extends ListAdapter<Medicamento, MedicamentoAdap
                             // Si hay una toma olvidada, mostrar advertencia
                             if (tomaOlvidada != null) {
                                 new android.app.AlertDialog.Builder(v.getContext())
-                                    .setTitle("Toma olvidada")
-                                    .setMessage("No marcaste como tomada la dosis de las " + tomaOlvidada + ". ¿Quieres marcar la toma actual de las " + horaObjetivo + "?")
-                                    .setPositiveButton("Sí, marcar actual", (dialog, which) -> {
+                                    .setTitle(context.getString(R.string.missed_take_title))
+                                    .setMessage(context.getString(R.string.missed_take_message, tomaOlvidada, horaObjetivo))
+                                    .setPositiveButton(context.getString(R.string.missed_take_positive), (dialog, which) -> {
                                         listener.onTomarClick(med, tomaIdHoy);
                                     })
-                                    .setNegativeButton("Cancelar", null)
+                                    .setNegativeButton(context.getString(R.string.cancel), null)
                                     .show();
                             } else {
                                 listener.onTomarClick(med, tomaIdHoy);
@@ -248,7 +249,7 @@ public class MedicamentoAdapter extends ListAdapter<Medicamento, MedicamentoAdap
 
         /**
          * Obtiene la hora de la última toma registrada si es del día de hoy.
-         * Retorna la hora en formato "HH:mm" o null si no hay toma de hoy.
+         * Retorna la hora en formato \"HH:mm\" o null si no hay toma de hoy.
          */
         private String obtenerHoraUltimaTomada(String ultimaTomaId, String fechaHoy) {
             if (ultimaTomaId != null && ultimaTomaId.startsWith(fechaHoy)) {
@@ -298,7 +299,7 @@ public class MedicamentoAdapter extends ListAdapter<Medicamento, MedicamentoAdap
         }
 
         /**
-         * Convierte una hora en formato "HH:mm" a minutos desde medianoche.
+         * Convierte una hora en formato \"HH:mm\" a minutos desde medianoche.
          */
         private int convertirHoraAMinutos(String hora) {
             try {

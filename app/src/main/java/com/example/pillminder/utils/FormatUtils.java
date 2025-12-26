@@ -1,35 +1,44 @@
 package com.example.pillminder.utils;
 
-public class FormatUtils {
+import android.content.Context;
+import android.content.res.Resources;
+import com.example.pillminder.R;
 
-    /**
-     * Devuelve la unidad correcta (singular/plural) y el género del interrogativo.
-     */
-    public static String obtenerUnidadFormateada(int cantidad, String tipo) {
+public class FormatUtils {
+    public static String obtenerUnidadFormateada(Context context, int cantidad, String tipo) {
         if (tipo == null) return "";
         String t = tipo.toLowerCase().trim();
+        Resources res = context.getResources();
 
-        // Si la cantidad es 1, aplicamos reglas de singular
-        if (cantidad == 1) {
-            switch (t) {
-                case "pastillas": return "pastilla";
-                case "gotas": return "gota";
-                case "inhalaciones": return "inhalación";
-                default:
-                    // Si termina en 's', intentamos quitarla, si no, devolvemos tal cual (ej. ml)
-                    return (t.endsWith("s") && t.length() > 1) ? t.substring(0, t.length() - 1) : t;
-            }
+        int pluralResId;
+        switch (t) {
+            case "tablets":
+                pluralResId = R.plurals.unit_tablets;
+                break;
+            case "capsules":
+                pluralResId = R.plurals.unit_capsules;
+                break;
+            case "ml":
+                pluralResId = R.plurals.unit_ml;
+                break;
+            case "drops":
+                pluralResId = R.plurals.unit_drops;
+                break;
+            case "pills":
+                pluralResId = R.plurals.unit_pills;
+                break;
+            case "sachets":
+                pluralResId = R.plurals.unit_sachets;
+                break;
+            case "inhalations":
+                pluralResId = R.plurals.unit_inhalations;
+                break;
+            case "units":
+            default:
+                pluralResId = R.plurals.unit_units;
+                break;
         }
-        return t;
-    }
 
-    public static String obtenerInterrogativo(String tipo) {
-        if (tipo == null) return "¿Cuánto";
-        String t = tipo.toLowerCase().trim();
-        // Femeninos: pastillas, gotas, inhalaciones
-        if (t.endsWith("as") || t.endsWith("es") || t.equals("pastilla") || t.equals("gota") || t.equals("inhalación")) {
-            return "¿Cuántas";
-        }
-        return "¿Cuántos";
+        return res.getQuantityString(pluralResId, cantidad);
     }
 }

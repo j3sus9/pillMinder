@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 if (medicamento.getStockTotal() >= medicamento.getDosis()) {
                     mostrarDialogoConfirmacionToma(medicamento, tomaId);
                 } else {
-                    Toast.makeText(MainActivity.this, "No queda stock suficiente para esta dosis", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.no_stock_for_dose), Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -69,12 +69,12 @@ public class MainActivity extends AppCompatActivity {
                 String hora = tomaId.contains("_") ? tomaId.split("_")[1] : "";
 
                 new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Confirmar toma")
-                        .setMessage("¿Has tomado tu dosis de " + medicamento.getNombre() + " correspondiente a las " + hora + "?")
-                        .setPositiveButton("SÍ, LA HE TOMADO", (dialog, which) -> {
+                        .setTitle(getString(R.string.confirm_take_title))
+                        .setMessage(getString(R.string.confirm_take_message, medicamento.getNombre(), hora))
+                        .setPositiveButton(getString(R.string.confirm_take_yes), (dialog, which) -> {
                             pillViewModel.tomarMedicamento(medicamento, tomaId);
                         })
-                        .setNegativeButton("NO", null)
+                        .setNegativeButton(getString(R.string.confirm_take_no), null)
                         .show();
             }
 
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         // Creamos un campo de texto para el número
         final EditText input = new EditText(this);
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        input.setHint("Ej: 30");
+        input.setHint(getString(R.string.restock_hint));
 
         // Margen para el EditText dentro del diálogo
         android.widget.FrameLayout container = new android.widget.FrameLayout(this);
@@ -131,14 +131,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Usamos FormatUtils para que la pregunta sea gramaticalmente correcta
         String tipo = med.getTipoDosis();
-        String interrogativo = FormatUtils.obtenerInterrogativo(tipo);
-        String mensaje = interrogativo + " " + tipo.toLowerCase() + " quieres añadir a la cantidad actual?";
+
+        String unidadPlural = FormatUtils.obtenerUnidadFormateada(this, 2, tipo);
+        String mensaje = getString(R.string.restock_message, unidadPlural);
 
         new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Reponer " + med.getNombre())
+                .setTitle(getString(R.string.restock_title, med.getNombre()))
                 .setMessage(mensaje)
                 .setView(container)
-                .setPositiveButton("Añadir", (dialog, which) -> {
+                .setPositiveButton(getString(R.string.restock_add), (dialog, which) -> {
                     String valor = input.getText().toString();
                     if (!valor.isEmpty()) {
                         int cantidadAñadida = Integer.parseInt(valor);
@@ -148,11 +149,11 @@ public class MainActivity extends AppCompatActivity {
                         pillViewModel.actualizarStock(med.getDocumentId(), nuevoStock);
 
                         // Formateamos la unidad para el mensaje de éxito (ej: "1 pastilla" o "30 pastillas")
-                        String unidadFinal = FormatUtils.obtenerUnidadFormateada(cantidadAñadida, tipo);
-                        Toast.makeText(this, "Se han añadido " + valor + " " + unidadFinal, Toast.LENGTH_SHORT).show();
+                        String unidadFinal = FormatUtils.obtenerUnidadFormateada(this, cantidadAñadida, tipo);
+                        Toast.makeText(this, getString(R.string.restock_success, cantidadAñadida, unidadFinal), Toast.LENGTH_SHORT).show();
                     }
                 })
-                .setNegativeButton("Cancelar", null)
+                .setNegativeButton(getString(R.string.cancel), null)
                 .show();
     }
 
@@ -161,13 +162,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private void mostrarDialogoConfirmacion(Medicamento medicamento) {
         new AlertDialog.Builder(this)
-                .setTitle("Eliminar Medicamento")
-                .setMessage("¿Estás seguro de que quieres borrar " + medicamento.getNombre() + "?")
-                .setPositiveButton("Eliminar", (dialog, which) -> {
+                .setTitle(getString(R.string.delete_pill_title))
+                .setMessage(getString(R.string.delete_pill_message, medicamento.getNombre()))
+                .setPositiveButton(getString(R.string.delete_pill_confirm), (dialog, which) -> {
                     pillViewModel.deleteMedicamento(medicamento.getDocumentId());
-                    Toast.makeText(MainActivity.this, "Medicamento eliminado", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.pill_deleted), Toast.LENGTH_SHORT).show();
                 })
-                .setNegativeButton("Cancelar", null)
+                .setNegativeButton(getString(R.string.cancel), null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
