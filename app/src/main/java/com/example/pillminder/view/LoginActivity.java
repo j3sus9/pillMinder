@@ -22,7 +22,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etEmail, etPassword;
     private Button btnLogin, btnRegister;
     private ProgressBar progressBar;
-    private TextView tvRegisterPrompt; // Para el texto "No tienes cuenta?"
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +34,6 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btn_login);
         btnRegister = findViewById(R.id.btn_register);
         progressBar = findViewById(R.id.progress_bar);
-        tvRegisterPrompt = findViewById(R.id.tv_register_prompt); // Si lo incluiste en el XML
 
         // 2. Inicialización del ViewModel (MVVM)
         // Esto le dice a Android que queremos usar el ViewModel y gestionará su ciclo de vida

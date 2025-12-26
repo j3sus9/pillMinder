@@ -59,6 +59,11 @@
     <string name="pill_deleted">Medication deleted</string>
 
     <!-- LoginActivity strings -->
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_button">LOG IN</string>
+    <string name="login_register_prompt">Don\'t have an account? Register here</string>
+    <string name="register_button">REGISTER</string>
     <string name="login_empty_credentials">Email and password must be entered.</string>
     <string name="register_invalid_credentials">Email and password (minimum 6 characters) are required.</string>
 
