@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = etPassword.getText().toString();
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Debe ingresar email y contraseña.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.login_empty_credentials), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -105,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Validación básica (Firebase Auth requiere mínimo 6 caracteres en la contraseña)
         if (email.isEmpty() || password.isEmpty() || password.length() < 6) {
-            Toast.makeText(this, "El email y la contraseña (mínimo 6 caracteres) son requeridos.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.register_invalid_credentials), Toast.LENGTH_LONG).show();
             return;
         }
 

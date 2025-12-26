@@ -58,7 +58,11 @@
     <string name="delete_pill_confirm">Delete</string>
     <string name="pill_deleted">Medication deleted</string>
 
-    <!-- Plurales para unidades de dosis -->
+    <!-- LoginActivity strings -->
+    <string name="login_empty_credentials">Email and password must be entered.</string>
+    <string name="register_invalid_credentials">Email and password (minimum 6 characters) are required.</string>
+
+    <!-- Plurals for dose units -->
     <plurals name="unit_tablets">
         <item quantity="one">tablet</item>
         <item quantity="other">tablets</item>
