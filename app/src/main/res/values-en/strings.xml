@@ -42,6 +42,11 @@
     <!-- Main Menu -->
     <string name="action_logout">Log Out</string>
 
+    <!-- Item Menu -->
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_reponer">Restock</string>
+
     <!-- MainActivity strings -->
     <string name="no_stock_for_dose">Not enough stock for this dose</string>
     <string name="confirm_take_title">Confirm take</string>

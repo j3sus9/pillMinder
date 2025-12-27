@@ -42,6 +42,11 @@
     <!-- Main Menu -->
     <string name="action_logout">Cerrar Sesión</string>
 
+    <!-- Item Menu -->
+    <string name="action_edit">Modificar</string>
+    <string name="action_delete">Borrar</string>
+    <string name="action_reponer">Reponer</string>
+
     <!-- MainActivity strings -->
     <string name="no_stock_for_dose">No queda stock suficiente para esta dosis</string>
     <string name="confirm_take_title">Confirmar toma</string>
