@@ -74,7 +74,7 @@ Para evaluar o compilar el proyecto, siga estos pasos:
 3.  **Usuarios existentes:** Introduce credenciales y pulsa **"Iniciar Sesión"** o **"Log In"**.
 
 <p align="center">
-  <img src="screenshots/Screenshot_20251226_185543.png" alt="Pantalla de Inicio de Sesión y Registro" width="40%">
+  <img src="screenshots/Screenshot_20251226_185543.png" alt="Pantalla de Inicio de Sesión y Registro" width="250">
 </p>
 <p align="center"><em>Pantalla de Inicio de Sesión y Registro</em></p>
 
@@ -88,8 +88,8 @@ Para evaluar o compilar el proyecto, siga estos pasos:
 
 <table align="center" border="0">
   <tr>
-    <td align="center"><img src="screenshots/Screenshot_20251226_185744.png" alt="Pantalla Principal con botón (+)" width="100%"></td>
-    <td align="center"><img src="screenshots/Screenshot_20251226_185804.png" alt="Formulario de Nuevo Medicamento" width="100%"></td>
+    <td align="center"><img src="screenshots/Screenshot_20251226_185744.png" alt="Pantalla Principal con botón (+)" width="250"></td>
+    <td align="center"><img src="screenshots/Screenshot_20251226_185804.png" alt="Formulario de Nuevo Medicamento" width="250"></td>
   </tr>
   <tr>
     <td align="center"><em>Pantalla Principal con botón (+)</em></td>
@@ -104,8 +104,8 @@ Para evaluar o compilar el proyecto, siga estos pasos:
 
 <table align="center" border="0">
   <tr>
-    <td align="center"><img src="screenshots/tomar.png" alt="Botón 'Tomar' activado" width="100%"></td>
-    <td align="center"><img src="screenshots/confirmarToma.png" alt="Diálogo de confirmación de toma" width="100%"></td>
+    <td align="center"><img src="screenshots/tomar.png" alt="Botón 'Tomar' activado" width="250"></td>
+    <td align="center"><img src="screenshots/confirmarToma.png" alt="Diálogo de confirmación de toma" width="250"></td>
   </tr>
   <tr>
     <td align="center"><em>Botón 'Tomar' activado</em></td>
@@ -121,8 +121,8 @@ Para evaluar o compilar el proyecto, siga estos pasos:
 
 <table align="center" border="0">
   <tr>
-    <td align="center"><img src="screenshots/editar.png" alt="Opciones de Medicamento (Modificar)" width="100%"></td>
-    <td align="center"><img src="screenshots/Screenshot_20251226_190353.png" alt="Pantalla de Edición" width="100%"></td>
+    <td align="center"><img src="screenshots/editar.png" alt="Opciones de Medicamento (Modificar)" width="250"></td>
+    <td align="center"><img src="screenshots/Screenshot_20251226_190353.png" alt="Pantalla de Edición" width="250"></td>
   </tr>
   <tr>
     <td align="center"><em>Opciones de Medicamento (Modificar)</em></td>
@@ -137,8 +137,8 @@ Para evaluar o compilar el proyecto, siga estos pasos:
 
 <table align="center" border="0">
   <tr>
-    <td align="center"><img src="screenshots/borrar.png" alt="Opciones de Medicamento (Borrar)" width="100%"></td>
-    <td align="center"><img src="screenshots/confirmarBorrar.png" alt="Confirmación de borrar" width="100%"></td>
+    <td align="center"><img src="screenshots/borrar.png" alt="Opciones de Medicamento (Borrar)" width="250"></td>
+    <td align="center"><img src="screenshots/confirmarBorrar.png" alt="Confirmación de borrar" width="250"></td>
   </tr>
   <tr>
     <td align="center"><em>Opciones de Medicamento (Borrar)</em></td>
@@ -153,8 +153,8 @@ Para evaluar o compilar el proyecto, siga estos pasos:
 
 <table align="center" border="0">
   <tr>
-    <td align="center"><img src="screenshots/reponer.png" alt="Opciones de Medicamento (Reponer)" width="100%"></td>
-    <td align="center"><img src="screenshots/confirmarReponer.png" alt="Pantalla de Reponer Stock" width="100%"></td>
+    <td align="center"><img src="screenshots/reponer.png" alt="Opciones de Medicamento (Reponer)" width="250"></td>
+    <td align="center"><img src="screenshots/confirmarReponer.png" alt="Pantalla de Reponer Stock" width="250"></td>
   </tr>
   <tr>
     <td align="center"><em>Opciones de Medicamento (Reponer)</em></td>
@@ -168,8 +168,8 @@ Para evaluar o compilar el proyecto, siga estos pasos:
 
 <table align="center" border="0">
   <tr>
-    <td align="center"><img src="screenshots/tresPuntos.png" alt="Menú de opciones superior" width="100%"></td>
-    <td align="center"><img src="screenshots/cerrarSesion.png" alt="Opción Cerrar Sesión" width="100%"></td>
+    <td align="center"><img src="screenshots/tresPuntos.png" alt="Menú de opciones superior" width="250"></td>
+    <td align="center"><img src="screenshots/cerrarSesion.png" alt="Opción Cerrar Sesión" width="250"></td>
   </tr>
   <tr>
     <td align="center"><em>Menú de opciones superior</em></td>
@@ -181,9 +181,3 @@ Para evaluar o compilar el proyecto, siga estos pasos:
 1.  Acepta el permiso de notificaciones al instalar la app.
 2.  No requieres acción extra. La app funciona en segundo plano.
 3.  A la hora programada, recibirás una notificación en tu dispositivo.
-
----
-
-## 🔗 Repositorio
-El código fuente del proyecto se encuentra disponible en:
-[https://github.com/j3sus9/pillMinder.git](https://github.com/j3sus9/pillMinder.git)
